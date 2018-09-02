@@ -1,0 +1,10 @@
+title = "quinjet Configurations"
+ 
+Context = "minikube"
+Namespace = "default"
+
+[RabbitMQCFG]
+Host = "localhost"
+Port = "5672"
+User = "guest"
+Password = "guest"

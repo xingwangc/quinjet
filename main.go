@@ -14,7 +14,9 @@
 
 package main
 
-import "github.com/xingwangc/quinjet/cmd"
+import (
+	"github.com/xingwangc/quinjet/cmd"
+)
 
 func main() {
 	cmd.Execute()
