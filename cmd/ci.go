@@ -15,21 +15,57 @@
 package cmd
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
+	"strings"
+	//	"times"
 
 	"github.com/spf13/cobra"
+	"github.com/xingwangc/quinjet/pkg/config"
+	"github.com/xingwangc/quinjet/pkg/k8s"
+	"github.com/xingwangc/quinjet/pkg/rabbitmq"
 )
+
+func citrigger(cmd *cobra.Command, args []string) {
+	mode := "unsync"
+	if len(args) == 4 && (args[3] == "sync" || args[3] == "unsync") {
+		mode = args[3]
+	}
+
+	buf := md5.New()
+	io.WriteString(buf, strings.Join(args[0:3], " "))
+	md5 := buf.Sum(nil)
+
+	err := k8s.CreateCIJob(args[0], args[1], args[2], config.GlobalCFG.Context)
+	if err != nil {
+		panic(err)
+	}
+
+	if mode == "unsync" {
+		fmt.Printf("%x\n", md5)
+	} else {
+		err := rabbitmq.QueryMsgQueue(
+			config.GlobalCFG.RabbitMQ.Host,
+			config.GlobalCFG.RabbitMQ.Port,
+			config.GlobalCFG.RabbitMQ.User,
+			config.GlobalCFG.RabbitMQ.Password,
+			string(md5),
+			mode,
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+}
 
 // ciCmd represents the ci command
 var ciCmd = &cobra.Command{
-	Use:   "ci",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "ci [git repo] [dependance install] [build command] sync/unsync",
+	Short: "trigger a ci job",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("ci called")
 	},

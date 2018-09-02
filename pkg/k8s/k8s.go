@@ -94,3 +94,7 @@ func CreateRabbitMQReplicaset(context string) error {
 
 	return err
 }
+
+func CreateCIJob(repo, dependances, build, context string) error {
+	return nil
+}
