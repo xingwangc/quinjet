@@ -9,3 +9,5 @@ IMAGE_TAG=$1
 mkdir initenv
 bash scripts/init.sh ${IMAGE_TAG}
 rm -fr initenv
+
+#test test test 
